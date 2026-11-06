@@ -91,7 +91,7 @@ Model downloads are handled by Ollama during setup. Model weights are not stored
 ### Clone
 
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/AnkushCODERR/ScureLocalAI.git
 cd ScureLocalAI
 ```
 
