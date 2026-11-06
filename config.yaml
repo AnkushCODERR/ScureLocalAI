@@ -1,0 +1,34 @@
+llm:
+  model: qwen3:4b                   # Apache 2.0; use qwen3:8b for higher quality on roomier machines
+  base_url: http://localhost:11434
+  temperature: 0.1
+  max_tokens: 1024
+
+embeddings:
+  model: nomic-embed-text           # Apache 2.0
+  base_url: http://localhost:11434
+
+retrieval:
+  chunk_size: 512                   # characters per chunk
+  chunk_overlap: 64                 # overlap between adjacent chunks
+  top_k: 5                          # chunks retrieved per query
+
+storage:
+  documents_dir: data/documents
+  chroma_dir: data/chroma_db
+  chroma_collection: scurelocalai
+
+server:
+  host: 127.0.0.1
+  port: 8000
+
+vision:                             # Visualizing.py & VLM visual analysis
+  model: gemma3:4b                  # Ollama multimodal model (e.g. gemma3:4b, qwen2.5-vl:3b, llava)
+  enabled: true
+  output_dir: data/figures          # figures.json, crops and annotated pages are written here
+  crop_dpi: 150                     # resolution of saved figure crops (what the VLM will see)
+  min_side_pt: 28                   # ignore visuals smaller than this (icons, bullets)
+  cluster_gap_pt: 9                 # vector strokes closer than this form one figure
+  vector_min_score: 0.45            # raise to be stricter about vector charts/diagrams
+  drop_recurring: true              # drop logos repeated on 3+ pages
+  raster_enabled: true              # pixel analysis for scanned pages

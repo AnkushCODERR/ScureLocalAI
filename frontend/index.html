@@ -1,0 +1,378 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ScureLocalAI - Multimodal & Voice Assistant</title>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <div class="app-layout">
+      <!-- Top Navigation & Voice Header -->
+      <header class="top-nav" aria-label="Main Navigation">
+        <div class="nav-brand">
+          <div class="brand-logo-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z"/>
+              <path d="M12 6v6l4 2"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+          </div>
+          <div>
+            <h1 class="brand-title">ScureLocalAI</h1>
+            <span class="brand-badge">Local Multimodal RAG</span>
+          </div>
+        </div>
+
+        <nav class="nav-tabs" role="tablist">
+          <button id="tab-chat" class="tab-btn active" role="tab" aria-selected="true" data-view="chat">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+            Chat & Q&A
+          </button>
+          <button id="tab-figures" class="tab-btn" role="tab" aria-selected="false" data-view="figures">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+              <circle cx="8.5" cy="8.5" r="1.5"/>
+              <polyline points="21 15 16 10 5 21"/>
+            </svg>
+            Figures Gallery <span id="nav-figures-count" class="pill-count">0</span>
+          </button>
+          <button id="tab-relevance" class="tab-btn" role="tab" aria-selected="false" data-view="relevance">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"/>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              <line x1="11" y1="8" x2="11" y2="14"/>
+              <line x1="8" y1="11" x2="14" y2="11"/>
+            </svg>
+            Image Relevance
+          </button>
+        </nav>
+
+        <!-- Voice Agent Controls -->
+        <div class="voice-agent-bar" aria-label="Voice Agent Controls">
+          <div id="speech-indicator" class="speech-wave hidden" title="Voice Agent Speaking">
+            <span class="wave-bar"></span>
+            <span class="wave-bar"></span>
+            <span class="wave-bar"></span>
+            <span class="wave-bar"></span>
+            <span class="wave-text">Reading...</span>
+          </div>
+
+          <label class="toggle-switch" title="Automatically read assistant answers aloud">
+            <input type="checkbox" id="auto-speak-toggle" />
+            <span class="slider"></span>
+            <span class="toggle-label">Auto Read</span>
+          </label>
+
+          <button id="voice-settings-btn" class="icon-btn" title="Voice Agent Settings">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+            </svg>
+          </button>
+
+          <button id="stop-speaking-btn" class="icon-btn stop-btn hidden" title="Stop Speaking">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+              <rect x="4" y="4" width="16" height="16" rx="2" ry="2"/>
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <!-- App Workspace -->
+      <div class="workspace">
+        <!-- Sidebar -->
+        <aside class="sidebar" aria-label="Documents and Uploads">
+          <!-- Upload Area -->
+          <section class="sidebar-box upload-box">
+            <div class="box-title">Upload Documents</div>
+            <label id="drop-zone" class="drop-zone" for="file-input">
+              <div class="drop-icon">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <polyline points="17 8 12 3 7 8"/>
+                  <line x1="12" y1="3" x2="12" y2="15"/>
+                </svg>
+              </div>
+              <span class="drop-primary">Choose files or drop here</span>
+              <span class="drop-tags">
+                <span class="tag">PDF (Vision)</span>
+                <span class="tag">DOCX</span>
+                <span class="tag">PPTX</span>
+                <span class="tag">TXT</span>
+                <span class="tag">MD</span>
+              </span>
+            </label>
+            <input id="file-input" type="file" multiple accept=".pdf,.docx,.pptx,.txt,.md" />
+            <div id="upload-status" class="status-line" role="status"></div>
+          </section>
+
+          <!-- Indexed Documents -->
+          <section class="sidebar-box docs-box">
+            <div class="box-header">
+              <div class="box-title">
+                Indexed Documents <span id="doc-count-badge" class="pill-count">0</span>
+              </div>
+              <button id="refresh-documents" class="text-btn" title="Refresh document list">Refresh</button>
+            </div>
+            <div class="search-input-wrap">
+              <input type="text" id="doc-search" placeholder="Filter documents..." />
+            </div>
+            <ul id="document-list" class="document-list"></ul>
+          </section>
+
+          <!-- Privacy Footer -->
+          <div class="privacy-footer">
+            <div class="privacy-pill">
+              <span class="dot-online"></span>
+              <span>100% Local & Offline</span>
+            </div>
+            <div class="models-label">Text: <code>qwen3</code> &bull; Vision: <code>gemma3</code></div>
+          </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-panel">
+          <!-- TAB 1: Chat & Q&A View -->
+          <section id="view-chat" class="view-panel active" role="tabpanel">
+            <div id="messages" class="messages" aria-live="polite">
+              <!-- Welcome Hero Card -->
+              <div class="welcome-card">
+                <div class="welcome-icon">
+                  <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                  </svg>
+                </div>
+                <h2>ScureLocalAI Multimodal Knowledge Base</h2>
+                <p>Ask grounded questions across your documents. The assistant automatically retrieves text, visual figures, diagrams, and charts, explains them, and reads answers aloud.</p>
+                <div class="prompt-chips">
+                  <button type="button" class="chip" data-prompt="What charts and diagrams are in the indexed documents, and what do they show?">📊 Explain all charts & diagrams</button>
+                  <button type="button" class="chip" data-prompt="Summarize the core findings and methodologies with page references.">📝 Summarize key findings</button>
+                  <button type="button" class="chip" data-prompt="Find any figures or images without descriptions in the documents and explain their visual content.">🔍 Explain uncaptioned figures</button>
+                  <button type="button" class="chip" data-prompt="How do the visual figures link with and support the surrounding text?">🔗 Link figures with text</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Chat Input Area -->
+            <div class="chat-footer">
+              <!-- Attachment preview when user selects an image to attach -->
+              <div id="attachment-preview" class="attachment-preview hidden">
+                <div class="thumb-wrap">
+                  <img id="attachment-img" src="" alt="Attached image preview" />
+                  <button type="button" id="remove-attachment-btn" class="remove-btn" title="Remove attachment">&times;</button>
+                </div>
+                <div class="attachment-info">
+                  <span id="attachment-name" class="filename">image.png</span>
+                  <span class="hint">Will be analyzed alongside your query</span>
+                </div>
+              </div>
+
+              <form id="chat-form" class="chat-form">
+                <div class="input-actions-left">
+                  <label class="icon-label-btn" for="image-input" title="Attach an image to this question">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                      <circle cx="8.5" cy="8.5" r="1.5"/>
+                      <polyline points="21 15 16 10 5 21"/>
+                    </svg>
+                  </label>
+                  <input id="image-input" type="file" accept="image/*" class="visually-hidden" />
+
+                  <button type="button" id="voice-input-btn" class="icon-btn mic-btn" title="Dictate question by voice">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                      <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                      <line x1="12" y1="19" x2="12" y2="23"/>
+                      <line x1="8" y1="23" x2="16" y2="23"/>
+                    </svg>
+                  </button>
+                </div>
+
+                <textarea
+                  id="question-input"
+                  rows="1"
+                  placeholder="Ask a question about your documents, charts, or diagrams... (or click 🎙️ to speak)"
+                  aria-label="Question input"
+                ></textarea>
+
+                <button id="send-button" type="submit" class="send-btn" title="Send question">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="22" y1="2" x2="11" y2="13"/>
+                    <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                  </svg>
+                </button>
+              </form>
+            </div>
+          </section>
+
+          <!-- TAB 2: Figures & Diagrams Gallery View -->
+          <section id="view-figures" class="view-panel" role="tabpanel">
+            <div class="panel-header">
+              <div>
+                <h2>Document Figures & Diagrams Gallery</h2>
+                <p>Browse all visual elements extracted from indexed documents with AI visual descriptions and source links.</p>
+              </div>
+              <div class="gallery-filters">
+                <select id="figures-doc-filter" class="filter-select">
+                  <option value="">All Documents</option>
+                </select>
+                <select id="figures-kind-filter" class="filter-select">
+                  <option value="">All Figure Types</option>
+                  <option value="chart">Charts & Graphs</option>
+                  <option value="diagram_or_illustration">Diagrams & Flowcharts</option>
+                  <option value="photo">Photographs</option>
+                </select>
+              </div>
+            </div>
+
+            <div id="figures-grid" class="figures-grid">
+              <!-- Rendered dynamically -->
+            </div>
+          </section>
+
+          <!-- TAB 3: External Image Relevance Checker View -->
+          <section id="view-relevance" class="view-panel" role="tabpanel">
+            <div class="panel-header">
+              <div>
+                <h2>External Image Relevance Checker</h2>
+                <p>Upload any external image (chart, architecture diagram, flowchart, photo) to determine whether it is relevant to your indexed documents.</p>
+              </div>
+            </div>
+
+            <div class="relevance-layout">
+              <div class="relevance-upload-card">
+                <label id="relevance-dropzone" class="relevance-dropzone" for="relevance-file-input">
+                  <div id="relevance-empty-view">
+                    <div class="drop-icon">
+                      <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                        <circle cx="8.5" cy="8.5" r="1.5"/>
+                        <polyline points="21 15 16 10 5 21"/>
+                      </svg>
+                    </div>
+                    <span class="drop-primary">Drop an external image here or click to browse</span>
+                    <span class="drop-subtitle">PNG, JPG, WEBP, BMP</span>
+                  </div>
+                  <div id="relevance-image-preview" class="relevance-preview hidden">
+                    <img id="relevance-img" src="" alt="External image preview" />
+                    <span class="preview-tag">Ready for relevance evaluation</span>
+                  </div>
+                </label>
+                <input id="relevance-file-input" type="file" accept="image/*" class="visually-hidden" />
+
+                <div class="relevance-form-controls">
+                  <label for="relevance-focus-query">Specific question or focus area (optional):</label>
+                  <input
+                    type="text"
+                    id="relevance-focus-query"
+                    placeholder="e.g. Does this system architecture match the proposed spec?"
+                  />
+                  <button type="button" id="check-relevance-btn" class="action-btn" disabled>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                      <polyline points="22 4 12 14.01 9 11.01"/>
+                    </svg>
+                    Check Relevance to Documents
+                  </button>
+                </div>
+              </div>
+
+              <!-- Relevance Results Card -->
+              <div id="relevance-results" class="relevance-results hidden">
+                <!-- Dynamically rendered verdict, analysis, and matching chunks -->
+              </div>
+            </div>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <!-- Lightbox / Modal for Deep Figure Inspection -->
+    <div id="figure-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <div class="modal-backdrop"></div>
+      <div class="modal-container">
+        <header class="modal-header">
+          <div class="modal-badges">
+            <span id="modal-kind-badge" class="badge-kind">Chart</span>
+            <span id="modal-page-badge" class="badge-page">Page 1</span>
+            <span id="modal-doc-badge" class="badge-doc">doc.pdf</span>
+          </div>
+          <button type="button" id="modal-close-btn" class="modal-close" title="Close modal">&times;</button>
+        </header>
+
+        <div class="modal-body">
+          <div class="modal-image-col">
+            <img id="modal-img" src="" alt="Full figure preview" />
+          </div>
+          <div class="modal-info-col">
+            <h3 id="modal-title">Figure Details</h3>
+            
+            <div class="meta-section">
+              <label>Caption:</label>
+              <p id="modal-caption" class="caption-text">None provided in document</p>
+            </div>
+
+            <div class="meta-section">
+              <div class="section-label-row">
+                <label>AI Visual Explanation:</label>
+                <button type="button" id="modal-speak-desc-btn" class="tiny-btn" title="Read explanation aloud">🔊 Read</button>
+              </div>
+              <div id="modal-explanation" class="explanation-box">Analyzing...</div>
+            </div>
+
+            <div class="meta-section">
+              <label>Linked Document Context:</label>
+              <div id="modal-context" class="context-box">Page context...</div>
+            </div>
+
+            <div class="modal-actions">
+              <button type="button" id="modal-ask-btn" class="action-btn-secondary">
+                💬 Ask Question About This Figure in Chat
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Voice Agent Settings Modal -->
+    <div id="voice-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="voice-modal-title">
+      <div class="modal-backdrop"></div>
+      <div class="modal-container small-modal">
+        <header class="modal-header">
+          <h3 id="voice-modal-title">Voice Agent Settings</h3>
+          <button type="button" id="voice-modal-close" class="modal-close">&times;</button>
+        </header>
+        <div class="modal-form">
+          <div class="form-group">
+            <label for="voice-select">Voice Accent / Speaker:</label>
+            <select id="voice-select" class="form-input"></select>
+          </div>
+          <div class="form-group">
+            <div class="label-row">
+              <label for="voice-rate">Speaking Rate:</label>
+              <span id="voice-rate-val">1.0x</span>
+            </div>
+            <input type="range" id="voice-rate" min="0.7" max="1.5" step="0.1" value="1.0" class="form-slider" />
+          </div>
+          <div class="form-group">
+            <div class="label-row">
+              <label for="voice-pitch">Pitch:</label>
+              <span id="voice-pitch-val">1.0</span>
+            </div>
+            <input type="range" id="voice-pitch" min="0.8" max="1.3" step="0.1" value="1.0" class="form-slider" />
+          </div>
+          <div class="form-actions">
+            <button type="button" id="voice-test-btn" class="action-btn-secondary">🔊 Test Voice</button>
+            <button type="button" id="voice-save-btn" class="action-btn">Save Settings</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="/app.js"></script>
+  </body>
+</html>
